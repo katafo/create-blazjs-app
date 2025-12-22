@@ -1,12 +1,11 @@
 import { AppRoute, BaseRoute } from '@blazjs/common'
-import { UserRoute } from '@modules/users/user.route'
 import { ClassConstructor } from 'class-transformer'
 import Container from 'typedi'
 
 const routes: ClassConstructor<BaseRoute>[] = []
 
 // v1
-const routesV1: ClassConstructor<BaseRoute>[] = [UserRoute]
+const routesV1: ClassConstructor<BaseRoute>[] = []
 
 export const Routes: AppRoute = {
   version: '',

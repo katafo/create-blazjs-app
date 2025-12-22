@@ -3,7 +3,6 @@ import { AppConfig } from '@app/app.config'
 import { AppError } from '@app/app.error'
 import { JwtAuth, JwtAuthPayload, JwtUnauthorizedError } from '@blazjs/auth'
 import { ErrorResp } from '@blazjs/common'
-import { User } from '@modules/users/entities/user.entity'
 import { NextFunction, Request, Response } from 'express'
 import { Service } from 'typedi'
 
@@ -25,16 +24,7 @@ export class AppAuth extends JwtAuth<AuthPayload> {
         throw AppError.Unauthorized
       }
 
-      const payload = await this.verify(token, 'access', async (decoded) => {
-        if (decoded.userId) {
-          const user = await User.findOne({
-            where: {
-              userId: decoded.userId,
-            },
-          })
-          return user?.salt
-        }
-      })
+      const payload = await this.verify(token, 'access')
       req['sub'] = payload.sub
       req['userId'] = payload.userId
       req['accessToken'] = token
