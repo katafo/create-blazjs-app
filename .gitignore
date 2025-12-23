@@ -107,3 +107,6 @@ dist
 *.sh
 
 docker/data
+
+# Claude Code
+.mcp.json

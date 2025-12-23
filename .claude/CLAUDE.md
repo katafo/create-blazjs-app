@@ -171,6 +171,58 @@ export class Product extends AppBaseEntity {
 }
 ```
 
+### Response DTO
+```typescript
+import { Expose } from 'class-transformer'
+
+export class UserDTO {
+  @Expose()
+  userId: string
+
+  @Expose()
+  email: string
+
+  @Expose()
+  createdAt: Date
+
+  @Expose()
+  updatedAt: Date
+}
+
+// Usage in repository:
+return plainToInstance(UserDTO, result, { excludeExtraneousValues: true })
+```
+
+### Repository
+```typescript
+import { AppDataSource } from '@app/app.datasource'
+import { DataSourceMode, TypeOrmRepos } from '@blazjs/datasource'
+import { plainToInstance } from 'class-transformer'
+import { Service } from 'typedi'
+
+@Service()
+export class UserRepos extends TypeOrmRepos<User> {
+  constructor(datasource: AppDataSource) {
+    super(User, datasource)
+  }
+
+  async getProfile(data: UserGetProfileDTO, db: DataSourceMode = 'slave') {
+    const { userId } = data
+
+    return await this.datasource.query(db, async (manager) => {
+      const query = manager
+        .createQueryBuilder()
+        .select('u.*')
+        .from(User, 'u')
+        .where('u.userId = :userId', { userId })
+
+      const result = await query.getRawOne()
+      return plainToInstance(UserDTO, result, { excludeExtraneousValues: true })
+    })
+  }
+}
+```
+
 ### Error
 ```typescript
 import { ErrorResp } from '@blazjs/common'

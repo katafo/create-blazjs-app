@@ -1,32 +1,34 @@
 # Create Module Command
 
-Create a new module with all necessary boilerplate files following the project architecture.
+Create a new module with all boilerplate files.
 
 ## Arguments
-- `$ARGUMENTS` - Module name in singular form (e.g., "product", "order", "category")
+
+- `$ARGUMENTS` - Module name in **singular** form (e.g., `product`, `order`, `category`)
+
+## Naming Convention
+
+| Input | Folder | Route | Classes |
+|-------|--------|-------|---------|
+| `product` | `src/modules/products/` | `/products` | `Product*` |
+| `order` | `src/modules/orders/` | `/orders` | `Order*` |
+| `category` | `src/modules/categories/` | `/categories` | `Category*` |
 
 ## Instructions
 
-1. **Parse module name**: Convert `$ARGUMENTS` to proper formats:
-   - kebab-case for files: `product` → `product`
-   - PascalCase for classes: `product` → `Product`
-   - Plural for route: `product` → `products`
-
-2. **Create folder structure**:
+1. **Create folder structure**:
    ```
-   src/modules/{module}/
-   ├── dtos/
-   │   └── requests/    (empty, ready for DTOs)
-   ├── entities/        (empty, ready for entities)
-   ├── repos/
-   │   └── {module}.repos.ts
+   src/modules/{modules}/          # plural (e.g., products)
+   ├── dtos/requests/              # empty
+   ├── entities/                   # empty
+   ├── repos/{module}.repos.ts
    ├── {module}.controller.ts
    ├── {module}.service.ts
    ├── {module}.route.ts
    └── {module}.error.ts
    ```
 
-3. **Generate files with this content**:
+2. **Generate files**:
 
 ### {module}.error.ts
 ```typescript
@@ -46,7 +48,7 @@ import { Service } from 'typedi'
 @Service()
 export class {Module}Repos extends TypeOrmRepos<any> {
   constructor(datasource: AppDataSource) {
-    super(Object, datasource) // TODO: Replace with actual entity after creating it
+    super(Object, datasource)
   }
 }
 ```
@@ -82,7 +84,7 @@ import { {Module}Controller } from './{module}.controller'
 
 @Service()
 export class {Module}Route extends BaseRoute {
-  route = '{modules}' // plural
+  route = '{modules}'
 
   constructor(private auth: AppAuth, private {module}Controller: {Module}Controller) {
     super()
@@ -95,8 +97,13 @@ export class {Module}Route extends BaseRoute {
 }
 ```
 
-4. **Register route** in `src/routes.ts`:
-   - Add import: `import { {Module}Route } from '@modules/{modules}/{module}.route'`
-   - Add to `routesV1` array: `{Module}Route`
+3. **Register route** in `src/routes.ts`:
+```typescript
+import { {Module}Route } from '@modules/{modules}/{module}.route'
 
-5. **Output summary** of created files and next steps.
+const routesV1: ClassConstructor<BaseRoute>[] = [
+  {Module}Route,
+]
+```
+
+4. **Output**: List created files and next steps.

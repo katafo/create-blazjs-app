@@ -1,5 +1,3 @@
-# API
-
 ### How to run:
 
 ```

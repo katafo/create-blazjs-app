@@ -33,6 +33,22 @@ Add endpoint or entity to an existing module.
 
 ## MODE 1: Add Endpoint
 
+### Common Validators
+
+| Validator | Usage |
+|-----------|-------|
+| `IsString` | String field |
+| `IsNumber` | Number field |
+| `IsEmail` | Email format |
+| `IsUUID` | UUID format |
+| `IsBoolean` | Boolean field |
+| `IsOptional` | Optional field |
+| `IsNotEmpty` | Required, non-empty |
+| `MinLength(n)` | Min string length |
+| `MaxLength(n)` | Max string length |
+| `Min(n)` | Min number value |
+| `Max(n)` | Max number value |
+
 ### Create files & edit:
 
 1. **Create Request DTO**: `dtos/requests/{module}-{feature-kebab}.req.dto.ts`

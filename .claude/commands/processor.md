@@ -5,22 +5,14 @@ Create a BullMQ job processor (queue worker or cron job).
 ## Arguments
 
 - `$ARGUMENTS` - Format: `{module} {Name} [--cron]`
-- Examples:
-  - `user SendEmail` - Regular queue processor
-  - `user CleanupExpiredTokens --cron` - Cron job processor
+  - `user SendEmail` - Queue processor
+  - `user CleanupTokens --cron` - Cron job
 
 ## Instructions
 
-### 1. Parse Arguments
+### Queue Processor (default)
 
-- Extract module name and processor name
-- Detect `--cron` flag for cron job processor
-
----
-
-### 2A. Regular Queue Processor (no --cron)
-
-**File**: `src/modules/{module}/processors/{name}.processor.ts`
+**File**: `src/modules/{modules}/processors/{name}.processor.ts`
 
 ```typescript
 import { AppConfig } from '@app/app.config'
@@ -34,34 +26,22 @@ export class {Name}JobProcessor extends JobProcessor {
   constructor(config: AppConfig) {
     super({
       connection: config.redis,
-      queue: {
-        name: '{queue-name}',
-      },
+      queue: { name: '{queue-name-kebab}' },
       logger,
     })
   }
 
   async process(job: Job): Promise<BulkJob[]> {
-    logger.debug(`Processing {name} job`, job.data)
-
-    // TODO: Implement job processing logic
-
-    // Return child jobs to be added to queue, or empty array
+    logger.debug(`Processing job`, job.data)
+    // TODO: Implement logic
     return []
   }
 }
 ```
 
-**Naming**:
-- Class: `{Name}JobProcessor` (e.g., `SendEmailJobProcessor`)
-- File: `{name}.processor.ts` (e.g., `send-email.processor.ts`)
-- Queue name: kebab-case (e.g., `send-email`)
+### Cron Processor (--cron)
 
----
-
-### 2B. Cron Job Processor (--cron)
-
-**File**: `src/modules/{module}/processors/{name}-cron.processor.ts`
+**File**: `src/modules/{modules}/processors/{name}-cron.processor.ts`
 
 ```typescript
 import { AppConfig } from '@app/app.config'
@@ -75,92 +55,53 @@ export class {Name}CronJobProcessor extends CronJobProcessor {
   constructor(config: AppConfig) {
     super({
       connection: config.redis,
-      queue: {
-        name: 'cron-{queue-name}',
-      },
+      queue: { name: 'cron-{queue-name-kebab}' },
       logger,
     })
   }
 
   async process(_job: Job): Promise<BulkJob[]> {
-    logger.debug(`Running {name} cron job...`)
-
-    // TODO: Implement cron job logic
-
-    // Return child jobs to be added to queue, or empty array
+    logger.debug(`Running cron job...`)
+    // TODO: Implement logic
     return []
   }
 }
 ```
 
-**Naming**:
-- Class: `{Name}CronJobProcessor` (e.g., `CleanupExpiredTokensCronJobProcessor`)
-- File: `{name}-cron.processor.ts` (e.g., `cleanup-expired-tokens-cron.processor.ts`)
-- Queue name: `cron-{kebab-case}` (e.g., `cron-cleanup-expired-tokens`)
+### Register in `src/app/app.processor.ts`
 
----
-
-### 3. Register Processor
-
-Add to `src/app/app.processor.ts`:
-
-**For regular processor:**
+**Queue processor:**
 ```typescript
-import { {Name}JobProcessor } from '@modules/{module}/processors/{name}.processor'
-
-// Inside registerJobProcessors():
-const {name}Processor = Container.get({Name}JobProcessor)
-{name}Processor.spawn()
+const processor = Container.get({Name}JobProcessor)
+processor.spawn()
 ```
 
-**For cron processor:**
+**Cron processor:**
 ```typescript
-import { {Name}CronJobProcessor } from '@modules/{module}/processors/{name}-cron.processor'
-
-// Inside registerJobProcessors():
-const {name}CronProcessor = await Container.get({Name}CronJobProcessor).cron({
-  pattern: '0 0 * * *', // Adjust cron pattern as needed
+const cronProcessor = await Container.get({Name}CronJobProcessor).cron({
+  pattern: '0 0 * * *', // daily at midnight
 })
-{name}CronProcessor.spawn()
+cronProcessor.spawn()
 ```
 
----
-
-## Common Cron Patterns
+## Cron Patterns
 
 | Pattern | Description |
 |---------|-------------|
 | `* * * * *` | Every minute |
 | `0 * * * *` | Every hour |
-| `0 0 * * *` | Every day at midnight |
-| `0 0 * * 0` | Every Sunday at midnight |
-| `0 0 1 * *` | First day of month at midnight |
+| `0 0 * * *` | Daily midnight |
 | `*/5 * * * *` | Every 5 minutes |
-| `0 9-17 * * 1-5` | Every hour 9AM-5PM, Mon-Fri |
 
----
-
-## Output
-
-- Created processor file path
-- Show registration code to add to `app.processor.ts`
-- Remind about cron pattern for cron jobs
-
-## Adding Jobs to Queue
-
-To add jobs from service:
+## Adding Jobs
 
 ```typescript
-import { {Name}JobProcessor } from '@modules/{module}/processors/{name}.processor'
-
 @Service()
 export class SomeService {
-  constructor(private {name}Processor: {Name}JobProcessor) {}
+  constructor(private processor: {Name}JobProcessor) {}
 
-  async someMethod() {
-    await this.{name}Processor.addJob('{job-name}', {
-      // job data
-    })
+  async doSomething() {
+    await this.processor.addJob('job-name', { data })
   }
 }
 ```

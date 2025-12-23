@@ -3,47 +3,32 @@
 Plan and create tests for a module.
 
 ## Arguments
-- `$ARGUMENTS` - Module name (e.g., "product", "user")
+
+- `$ARGUMENTS` - Module name (e.g., `product`, `user`)
 
 ## Instructions
 
-### Phase 1: Analysis & Planning
+### Phase 1: Analysis
 
 1. **Read module files**:
-   - `src/modules/{module}/{module}.service.ts`
-   - `src/modules/{module}/{module}.controller.ts`
-   - `src/modules/{module}/repos/{module}.repos.ts`
-   - `src/modules/{module}/{module}.error.ts`
-   - All DTOs in `src/modules/{module}/dtos/`
+   - `{module}.service.ts`
+   - `{module}.controller.ts`
+   - `repos/{module}.repos.ts`
+   - `{module}.error.ts`
+   - All DTOs
 
-2. **Identify testable functions**:
-   - List all public methods in service
-   - List all controller endpoints
-   - List all repository methods
+2. **Create test plan** with TodoWrite:
+   - Service unit tests
+   - Controller unit tests
+   - Test cases: happy path, errors, edge cases
 
-3. **Create test plan** using TodoWrite:
-   - Group by: Unit Tests (Service) → Unit Tests (Controller) → Integration Tests
-   - For each function, list:
-     - Happy path cases
-     - Edge cases
-     - Error cases (based on defined errors)
-     - Validation cases (based on DTO validators)
+3. **Wait for user approval** before implementing.
 
-4. **Present plan to user** and wait for approval before proceeding.
+### Phase 2: Implementation
 
-### Phase 2: Test Implementation
+**Folder**: `src/modules/{modules}/__tests__/`
 
-After user approves the plan:
-
-1. **Create test folder structure**:
-   ```
-   src/modules/{module}/__tests__/
-   ├── {module}.service.spec.ts
-   ├── {module}.controller.spec.ts
-   └── {module}.repos.spec.ts (if needed)
-   ```
-
-2. **Generate service tests** (`{module}.service.spec.ts`):
+### Service Test Template
 
 ```typescript
 import 'reflect-metadata'
@@ -52,7 +37,6 @@ import { {Module}Service } from '../{module}.service'
 import { {Module}Repos } from '../repos/{module}.repos'
 import { {Module}Errors } from '../{module}.error'
 
-// Mock dependencies
 jest.mock('../repos/{module}.repos')
 
 describe('{Module}Service', () => {
@@ -66,23 +50,21 @@ describe('{Module}Service', () => {
     service = Container.get({Module}Service)
   })
 
-  describe('{methodName}', () => {
-    it('should {expected behavior}', async () => {
+  describe('{method}', () => {
+    it('should return expected result', async () => {
       // Arrange
       // Act
       // Assert
     })
 
-    it('should throw {Error} when {condition}', async () => {
-      // Arrange
-      // Act & Assert
+    it('should throw error when not found', async () => {
       await expect(service.{method}(data)).rejects.toEqual({Module}Errors.{Error})
     })
   })
 })
 ```
 
-3. **Generate controller tests** (`{module}.controller.spec.ts`):
+### Controller Test Template
 
 ```typescript
 import 'reflect-metadata'
@@ -104,37 +86,15 @@ describe('{Module}Controller', () => {
   })
 
   describe('{endpoint}', () => {
-    it('should call service method with correct params', async () => {
-      // Test controller delegates to service correctly
+    it('should call service with correct params', async () => {
+      // Test delegation
     })
   })
 })
 ```
 
-4. **Update test config** if needed (jest.config.js, package.json scripts)
+### Run Tests
 
-5. **Run tests** and report results:
-   ```bash
-   yarn test src/modules/{module}
-   ```
-
-### Test Case Templates
-
-**Happy Path:**
-- Valid input → Expected output
-- All required fields present → Success response
-
-**Error Cases:**
-- Entity not found → Throw `{Module}NotFound`
-- Invalid credentials → Throw appropriate error
-- Duplicate entry → Throw conflict error
-
-**Validation Cases:**
-- Missing required field → Validation error
-- Invalid email format → Validation error
-- Value out of range → Validation error
-
-**Edge Cases:**
-- Empty arrays/strings
-- Boundary values (min/max)
-- Null/undefined handling
+```bash
+yarn test src/modules/{modules}
+```
