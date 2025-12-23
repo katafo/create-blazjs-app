@@ -32,13 +32,13 @@ This project includes Claude Code commands to speed up development. Use these sl
 
 ### Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `/module {name}` | Create a new feature module with all boilerplate files |
-| `/feature {module} {action} [fields...]` | Add endpoint or entity to existing module |
-| `/migration {Name}` | Create a new database migration |
-| `/processor {module} {Name} [--cron]` | Create queue processor or cron job |
-| `/test {module}` | Generate tests for a module |
+| Command                                  | Description                                            |
+| ---------------------------------------- | ------------------------------------------------------ |
+| `/module {name}`                         | Create a new feature module with all boilerplate files |
+| `/feature {module} {action} [fields...]` | Add endpoint or entity to existing module              |
+| `/migration {Name}`                      | Create a new database migration                        |
+| `/processor {module} {Name} [--cron]`    | Create queue processor or cron job                     |
+| `/test {module}`                         | Generate tests for a module                            |
 
 ### Examples
 

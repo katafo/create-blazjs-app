@@ -6,6 +6,12 @@ Create a new TypeORM migration.
 
 - `$ARGUMENTS` - Migration name in PascalCase (e.g., `CreateProductTable`, `AddEmailToUser`)
 
+## Rules
+
+- **Always use raw SQL queries** (no TypeORM schema builder)
+- **No need to write `down()` method** - leave it empty
+- After creating migration, remind user to run `yarn start:dev` to auto-run migration
+
 ## Instructions
 
 1. **Run CLI**:
@@ -13,12 +19,9 @@ Create a new TypeORM migration.
    yarn typeorm migration:create src/migrations/{MigrationName}
    ```
 
-2. **Read generated file** and suggest implementation based on name pattern.
+2. **Write `up()` method** with raw SQL based on migration name pattern.
 
-3. **Remind user**:
-   - Fill in migration logic
-   - Run `yarn build` before migration
-   - Migrations run on app start (if `migrationsRun: true`)
+3. **Remind user**: Run `yarn start:dev` to execute migration automatically.
 
 ## Column Types
 
@@ -40,10 +43,10 @@ public async up(queryRunner: QueryRunner): Promise<void> {
   await queryRunner.query(`
     create table Product (
       id        int auto_increment primary key,
-      productId varchar(255)                       not null,
-      name      varchar(255)                       not null,
-      price     decimal(10, 2)                     not null,
-      isActive  tinyint(1) default 1               not null,
+      productId varchar(255) not null,
+      name      varchar(255) not null,
+      price     decimal(10, 2) not null,
+      isActive  tinyint(1) default 1 not null,
       createdAt datetime default current_timestamp not null,
       updatedAt datetime default current_timestamp not null on update current_timestamp
     );
@@ -51,9 +54,7 @@ public async up(queryRunner: QueryRunner): Promise<void> {
   await queryRunner.query(`create unique index ux_Product__productId on Product (productId);`)
 }
 
-public async down(queryRunner: QueryRunner): Promise<void> {
-  await queryRunner.query(`drop table Product;`)
-}
+public async down(queryRunner: QueryRunner): Promise<void> {}
 ```
 
 ### Add Column
@@ -62,9 +63,7 @@ public async up(queryRunner: QueryRunner): Promise<void> {
   await queryRunner.query(`alter table User add column email varchar(255) null;`)
 }
 
-public async down(queryRunner: QueryRunner): Promise<void> {
-  await queryRunner.query(`alter table User drop column email;`)
-}
+public async down(queryRunner: QueryRunner): Promise<void> {}
 ```
 
 ### Add Index
@@ -73,9 +72,7 @@ public async up(queryRunner: QueryRunner): Promise<void> {
   await queryRunner.query(`create unique index ux_User__email on User (email);`)
 }
 
-public async down(queryRunner: QueryRunner): Promise<void> {
-  await queryRunner.query(`drop index ux_User__email on User;`)
-}
+public async down(queryRunner: QueryRunner): Promise<void> {}
 ```
 
 ## Index Naming
